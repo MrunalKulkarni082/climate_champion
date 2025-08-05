@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Climate Champion Programme</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .leaderboard-table th,
+        .leaderboard-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .leaderboard-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .leaderboard-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .leaderboard-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .rank {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .rank-1 {
+            background: linear-gradient(45deg, #ffd700, #ffed4e) !important;
+            color: #2c3e50;
+        }
+        
+        .rank-2 {
+            background: linear-gradient(45deg, #c0c0c0, #e8e8e8) !important;
+            color: #2c3e50;
+        }
+        
+        .rank-3 {
+            background: linear-gradient(45deg, #cd7f32, #daa520) !important;
+            color: #2c3e50;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Climate Champion Leaderboard</h1>
+            <p>Current Rankings - Climate Champion Programme 2025</p>
+        </div>
+        
+        <div class="content">
+            <div id="leaderboardContent">
+                <div class="loading">Loading leaderboard...</div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="/" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch('/leaderboard');
+                
+                if (response.status === 403) {
+                    document.getElementById('leaderboardContent').innerHTML = 
+                        '<div class="status error">Leaderboard is currently private. Please check back later.</div>';
+                    return;
+                }
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayLeaderboard(data);
+                } else {
+                    document.getElementById('leaderboardContent').innerHTML = 
+                        '<div class="status error">Failed to load leaderboard</div>';
+                }
+            } catch (error) {
+                document.getElementById('leaderboardContent').innerHTML = 
+                    '<div class="status error">Error loading leaderboard</div>';
+            }
+        }
+
+        function displayLeaderboard(leaderboardData) {
+            const container = document.getElementById('leaderboardContent');
+            
+            if (leaderboardData.length === 0) {
+                container.innerHTML = '<div class="no-data">No scores available yet. Check back later!</div>';
+                return;
+            }
+
+            let html = `
+                <div class="status info">
+                    <strong>Top ${leaderboardData.length} Climate Champions</strong><br>
+                    <small>Rankings based on total scores from all submissions</small>
+                </div>
+                
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>School</th>
+                            <th>Class</th>
+                            <th>Age</th>
+                            <th>Total Score</th>
+                            <th>Files</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            leaderboardData.forEach((entry, index) => {
+                const rank = index + 1;
+                const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                
+                html += `
+                    <tr class="${rankClass}">
+                        <td class="rank">${rank}</td>
+                        <td>${entry.studentId.name}</td>
+                        <td>${entry.studentId.school}</td>
+                        <td>${entry.studentId.studentClass}</td>
+                        <td>${entry.studentId.age}</td>
+                        <td><strong>${entry.totalScore}</strong></td>
+                        <td>${entry.submissionCount}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Load leaderboard when page loads
+        loadLeaderboard();
+    </script>
+</body>
+</html> 

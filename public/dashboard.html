@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Climate Champion Programme</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .logout {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        
+        .file-info {
+            background: #e8f4fd;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .leaderboard-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .submissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .submission-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .submission-info {
+            flex: 1;
+        }
+        
+        .submission-info p {
+            margin: 0.25rem 0;
+            color: #666;
+        }
+        
+        .submission-actions {
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Student Dashboard</h1>
+            <p>Climate Champion Programme 2025</p>
+        </div>
+        
+        <div class="content">
+            <div class="logout">
+                <form action="/logout" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            </div>
+            
+            <div class="section">
+                <h2>File Upload</h2>
+                <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="pdf">Upload your PDF submission (Max 5MB)</label>
+                        <input type="file" id="pdf" name="pdf" accept=".pdf" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Upload File</button>
+                </form>
+                <div id="uploadStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>My Submissions</h2>
+                <div id="submissionsInfo">
+                    <div class="file-info">
+                        <p><strong>Total Files:</strong> <span id="totalFiles">Checking...</span></p>
+                        <div id="submissionsList">
+                            <div class="loading">Loading submissions...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section leaderboard-section">
+                <h2>Leaderboard</h2>
+                <div id="leaderboardInfo">
+                    <p>Check your ranking among all participants!</p>
+                    <a href="/leaderboard-page" class="btn btn-warning" target="_blank">View Leaderboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load submissions on page load
+        async function loadSubmissions() {
+            try {
+                const response = await fetch('/api/student/submissions');
+                if (response.ok) {
+                    const data = await response.json();
+                    const totalFiles = document.getElementById('totalFiles');
+                    const submissionsList = document.getElementById('submissionsList');
+                    
+                    totalFiles.textContent = data.totalFiles;
+                    
+                    if (data.submissions.length === 0) {
+                        submissionsList.innerHTML = '<div class="status info">No files uploaded yet</div>';
+                    } else {
+                        let html = '<div class="submissions-grid">';
+                        data.submissions.forEach(submission => {
+                            const uploadDate = new Date(submission.uploadDate).toLocaleDateString();
+                            const scoreText = submission.score !== null ? `${submission.score}/100` : 'Not scored';
+                            const scoreClass = submission.score !== null ? 'success' : 'info';
+                            
+                            html += `
+                                <div class="submission-card">
+                                    <div class="submission-info">
+                                        <strong>${submission.originalName}</strong>
+                                        <p>Uploaded: ${uploadDate}</p>
+                                        <p>Score: <span class="status ${scoreClass}">${scoreText}</span></p>
+                                    </div>
+                                    <div class="submission-actions">
+                                        <a href="/view-file/${submission._id}" class="btn btn-warning" target="_blank">View</a>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        submissionsList.innerHTML = html;
+                    }
+                } else {
+                    const submissionsList = document.getElementById('submissionsList');
+                    submissionsList.innerHTML = '<div class="status error">Error loading submissions</div>';
+                }
+            } catch (error) {
+                console.error('Error loading submissions:', error);
+                const submissionsList = document.getElementById('submissionsList');
+                submissionsList.innerHTML = '<div class="status error">Error loading submissions</div>';
+            }
+        }
+
+        // Handle file upload
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            try {
+                statusDiv.innerHTML = '<div class="status info">Uploading...</div>';
+                
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    statusDiv.innerHTML = `<div class="status success">${result.message}</div>`;
+                    // Refresh submissions after successful upload
+                    setTimeout(() => {
+                        loadSubmissions();
+                        statusDiv.innerHTML = '';
+                    }, 2000);
+                } else {
+                    const result = await response.json();
+                    statusDiv.innerHTML = `<div class="status error">${result.error || 'Upload failed'}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="status error">Upload failed. Please try again.</div>';
+            }
+        });
+
+        // Load submissions when page loads
+        loadSubmissions();
+    </script>
+</body>
+</html> 

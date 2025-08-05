@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Climate Champion Programme</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 0.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+            margin: 2px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .logout {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        
+        .controls {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #e8f4fd;
+            border-radius: 5px;
+        }
+        
+        .leaderboard-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #27ae60;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .students-table th,
+        .students-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .students-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .students-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .students-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .score-input {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .submissions-modal {
+            background: white;
+            border-radius: 10px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 90%;
+        }
+        
+        .modal-header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .submissions-list {
+            padding: 1rem;
+        }
+        
+        .submission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .submission-details {
+            flex: 1;
+        }
+        
+        .submission-details p {
+            margin: 0.25rem 0;
+            color: #666;
+        }
+        
+        .submission-score {
+            margin: 0 1rem;
+        }
+        
+        .submission-actions {
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="admin-badge">ADMIN DASHBOARD</div>
+            <h1>Climate Champion Programme 2025</h1>
+            <p>Administrative Control Panel</p>
+        </div>
+        
+        <div class="content">
+            <div class="logout">
+                <form action="/logout" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            </div>
+            
+            <div class="section">
+                <h2>Leaderboard Control</h2>
+                <div class="controls">
+                    <div class="leaderboard-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="leaderboardToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Make Leaderboard Public</span>
+                    </div>
+                    <p><small>Toggle to show/hide the leaderboard to students and public</small></p>
+                </div>
+                <div id="leaderboardStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>Student Management</h2>
+                <div id="studentsList">
+                    <div class="loading">Loading students...</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Leaderboard</h2>
+                <div id="leaderboardContent">
+                    <div class="loading">Loading leaderboard...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load students on page load
+        async function loadStudents() {
+            try {
+                const response = await fetch('/admin/students');
+                if (response.ok) {
+                    const students = await response.json();
+                    window.currentStudents = students; // Store globally for modal access
+                    displayStudents(students);
+                } else {
+                    document.getElementById('studentsList').innerHTML = 
+                        '<div class="status error">Failed to load students</div>';
+                }
+            } catch (error) {
+                document.getElementById('studentsList').innerHTML = 
+                    '<div class="status error">Error loading students</div>';
+            }
+        }
+
+        // Display students in table
+        function displayStudents(students) {
+            const container = document.getElementById('studentsList');
+            
+            if (students.length === 0) {
+                container.innerHTML = '<div class="status info">No students registered yet</div>';
+                return;
+            }
+
+            let html = `
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>School</th>
+                            <th>Class</th>
+                            <th>Age</th>
+                            <th>Email</th>
+                            <th>Submissions</th>
+                            <th>Total Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            students.forEach(student => {
+                const submissionCount = student.submissionCount || 0;
+                const totalScore = student.totalScore || 0;
+                const submissionClass = submissionCount > 0 ? 'success' : 'error';
+                
+                html += `
+                    <tr>
+                        <td>${student.name}</td>
+                        <td>${student.school}</td>
+                        <td>${student.studentClass}</td>
+                        <td>${student.age}</td>
+                        <td>${student.email}</td>
+                        <td><span class="status ${submissionClass}">${submissionCount} files</span></td>
+                        <td><strong>${totalScore}</strong></td>
+                        <td>
+                            ${submissionCount > 0 ? 
+                                `<button onclick="viewSubmissions('${student._id}')" class="btn btn-warning">View Files</button>` : 
+                                '<span class="btn btn-secondary" disabled>No files</span>'
+                            }
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // View student submissions
+        function viewSubmissions(studentId) {
+            const students = window.currentStudents || [];
+            const student = students.find(s => s._id === studentId);
+            
+            if (!student || !student.submissions || student.submissions.length === 0) {
+                alert('No submissions found for this student');
+                return;
+            }
+
+            let html = `
+                <div class="submissions-modal">
+                    <div class="modal-header">
+                        <h3>Submissions for ${student.name}</h3>
+                        <button onclick="closeModal()" class="btn btn-danger">Close</button>
+                    </div>
+                    <div class="submissions-list">
+            `;
+
+            student.submissions.forEach(submission => {
+                const uploadDate = new Date(submission.uploadDate).toLocaleDateString();
+                const scoreText = submission.score !== null ? submission.score : '';
+                
+                html += `
+                    <div class="submission-item">
+                        <div class="submission-details">
+                            <strong>${submission.originalName}</strong>
+                            <p>Uploaded: ${uploadDate}</p>
+                        </div>
+                        <div class="submission-score">
+                            <input type="number" class="score-input" 
+                                   value="${scoreText}" min="0" max="100" 
+                                   data-submission-id="${submission._id}"
+                                   onchange="updateSubmissionScore('${submission._id}', this.value)"
+                                   placeholder="Score">
+                        </div>
+                        <div class="submission-actions">
+                            <a href="/admin/download/${submission._id}" class="btn btn-warning">Download</a>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = html;
+            document.body.appendChild(modal);
+        }
+
+        // Update submission score
+        async function updateSubmissionScore(submissionId, score) {
+            try {
+                const response = await fetch('/admin/assign-score', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ submissionId, score: parseInt(score) })
+                });
+
+                if (response.ok) {
+                    showStatus('Score updated successfully!', 'success');
+                    // Refresh data after score update
+                    setTimeout(() => {
+                        loadStudents();
+                        loadLeaderboard();
+                    }, 500);
+                } else {
+                    const result = await response.json();
+                    showStatus(result.error || 'Failed to update score', 'error');
+                }
+            } catch (error) {
+                showStatus('Error updating score', 'error');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Toggle leaderboard visibility
+        async function toggleLeaderboard() {
+            try {
+                const response = await fetch('/admin/toggle-leaderboard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('leaderboardToggle').checked = result.leaderboardVisible;
+                    showStatus(
+                        result.leaderboardVisible ? 
+                        'Leaderboard is now public' : 
+                        'Leaderboard is now private', 
+                        'success'
+                    );
+                } else {
+                    showStatus('Failed to toggle leaderboard', 'error');
+                }
+            } catch (error) {
+                showStatus('Error toggling leaderboard', 'error');
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('leaderboardStatus');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        // Load leaderboard status
+        async function loadLeaderboardStatus() {
+            try {
+                const response = await fetch('/admin/leaderboard-status');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('leaderboardToggle').checked = data.leaderboardVisible;
+                }
+            } catch (error) {
+                console.error('Error loading leaderboard status:', error);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('leaderboardToggle').addEventListener('change', toggleLeaderboard);
+
+        // Load leaderboard
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch('/leaderboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayLeaderboard(data);
+                } else {
+                    document.getElementById('leaderboardContent').innerHTML = 
+                        '<div class="status error">No scores available yet</div>';
+                }
+            } catch (error) {
+                document.getElementById('leaderboardContent').innerHTML = 
+                    '<div class="status error">Error loading leaderboard</div>';
+            }
+        }
+
+        function displayLeaderboard(leaderboardData) {
+            const container = document.getElementById('leaderboardContent');
+            
+            if (leaderboardData.length === 0) {
+                container.innerHTML = '<div class="no-data">No scores available yet. Check back later!</div>';
+                return;
+            }
+
+            let html = `
+                <div class="status info">
+                    <strong>Top ${leaderboardData.length} Climate Champions</strong><br>
+                    <small>Current rankings based on total scores from all submissions</small>
+                </div>
+                
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>School</th>
+                            <th>Class</th>
+                            <th>Age</th>
+                            <th>Total Score</th>
+                            <th>Files</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            leaderboardData.forEach((entry, index) => {
+                const rank = index + 1;
+                const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                
+                html += `
+                    <tr class="${rankClass}">
+                        <td class="rank">${rank}</td>
+                        <td>${entry.studentId.name}</td>
+                        <td>${entry.studentId.school}</td>
+                        <td>${entry.studentId.studentClass}</td>
+                        <td>${entry.studentId.age}</td>
+                        <td><strong>${entry.totalScore}</strong></td>
+                        <td>${entry.submissionCount}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Load data on page load
+        loadStudents();
+        loadLeaderboard();
+        loadLeaderboardStatus();
+    </script>
+</body>
+</html> 
